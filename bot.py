@@ -255,7 +255,7 @@ def handleMessageBot(msg):
         logging.info("Deactive Chat: " + str(chat_id))
 
     if msg_cont == '/dona':
-        donation_msg = "Se il bot ti piace e vuoi supportarmi, puoi farmi una donazione tramite PayPal [cliccando qui](%s). Grazie!"%DONATION
+        donation_msg = "Se il bot ti piace e vuoi supportarmi, puoi farmi una donazione tramite PayPal [cliccando qui](%s)\. Grazie\!"%DONATION
         bot.sendMessage(chat_id, donation_msg, parse_mode="MarkdownV2", disable_web_page_preview=True)
 
 
