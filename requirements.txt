@@ -1,0 +1,4 @@
+pandas
+telepot
+python-dateutil
+psycopg2-binary
