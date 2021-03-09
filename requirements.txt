@@ -1,4 +1,5 @@
 pandas
 telepot
 python-dateutil
+pytz
 psycopg2-binary

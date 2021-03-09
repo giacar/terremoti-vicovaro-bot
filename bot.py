@@ -7,8 +7,9 @@ from io import StringIO, BytesIO
 import pandas as pd
 import logging
 import signal
-from datetime import date
+from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
+from pytz import timezone
 import psycopg2
 
 import telepot
@@ -132,6 +133,17 @@ def updateTable(table):
     
     return (newdf, diffdf)
 
+def realNewEvent(event):
+    rawtimestamp = str(event['Time'])                                   #2021-01-23T13:09:56.000000
+    rawdate = rawtimestamp.split('T')[0]                                #2021-01-23
+
+    eventdate = date.fromisoformat(rawdate)
+    todaydate = datetime.now(timezone('Europe/Rome')).date()            # get Italy's date to fix if server is hosted in other countries
+
+    if eventdate == todaydate:
+        return True
+    return False
+
 def buildMessage(event):
     logging.debug(event)
 
@@ -166,10 +178,11 @@ def sendNewEvents(newevents):
     neweventsback = newevents.iloc[::-1]                # reverse in order to send from older to newer
     for id in chat_id_dict['active']:
         for index, event in neweventsback.iterrows():
-            message = buildMessage(event)
+            if realNewEvent(event):                     # check if the event happens today to avoid fake new event
+                message = buildMessage(event)
 
-            bot.sendMessage(id, message, parse_mode="MarkdownV2", disable_web_page_preview=True)
-            bot.sendLocation(id, float(event['Latitude']), float(event['Longitude']))
+                bot.sendMessage(id, message, parse_mode="MarkdownV2", disable_web_page_preview=True)
+                bot.sendLocation(id, float(event['Latitude']), float(event['Longitude']))
     del neweventsback
     logging.info("Sending completed")
 
