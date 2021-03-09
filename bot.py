@@ -176,13 +176,18 @@ def buildMessage(event):
 def sendNewEvents(newevents):
     logging.info("Sending new events to subscribers...")
     neweventsback = newevents.iloc[::-1]                # reverse in order to send from older to newer
-    for id in chat_id_dict['active']:
-        for index, event in neweventsback.iterrows():
-            if realNewEvent(event):                     # check if the event happens today to avoid fake new event
+    for index, event in neweventsback.iterrows():
+        if realNewEvent(event):                         # check if the event happens today to avoid fake new event
+            logging.info("New event ID=%s detected as REAL, sending it"%str(event['#EventID']))
+
+            for id in chat_id_dict['active']:
+                               
                 message = buildMessage(event)
 
                 bot.sendMessage(id, message, parse_mode="MarkdownV2", disable_web_page_preview=True)
                 bot.sendLocation(id, float(event['Latitude']), float(event['Longitude']))
+        else:
+            logging.info("New event ID=%s detected as FAKE, ignoring it"%str(event['#EventID']))
     del neweventsback
     logging.info("Sending completed")
 
@@ -295,6 +300,7 @@ while isinstance(df, int) and df==-1:
     df = initTable()
 
 logging.info("Table initialized")
+logging.info("Number of total subscribers: %d; active: %d, inactive: %d."%(len(chat_id_dict['active'])+len(chat_id_dict['stopped']), len(chat_id_dict['active']), len(chat_id_dict['stopped'])))
 
 # TEST
 #logging.info("Testing mode, please ignore the first fake event")
