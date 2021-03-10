@@ -133,6 +133,14 @@ def updateTable(table):
     
     return (newdf, diffdf)
 
+def storeFakeEvent(event, timestamp):
+    cur = conn.cursor()
+
+    cur.execute("INSERT INTO fake_events(eventid, timestamp) VALUES (%s, %s);", (int(event['EventID']), timestamp))
+
+    conn.commit()
+    cur.close()
+
 def realNewEvent(event):
     rawtimestamp = str(event['Time'])                                   #2021-01-23T13:09:56.000000
     rawdate = rawtimestamp.split('T')[0]                                #2021-01-23
@@ -188,6 +196,7 @@ def sendNewEvents(newevents):
                 bot.sendLocation(id, float(event['Latitude']), float(event['Longitude']))
         else:
             logging.info("New event ID=%s detected as FAKE, ignoring it"%str(event['#EventID']))
+            storeFakeEvent(event, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     del neweventsback
     logging.info("Sending completed")
 
@@ -300,7 +309,7 @@ while isinstance(df, int) and df==-1:
     df = initTable()
 
 logging.info("Table initialized")
-logging.info("Number of total subscribers: %d; active: %d, inactive: %d."%(len(chat_id_dict['active'])+len(chat_id_dict['stopped']), len(chat_id_dict['active']), len(chat_id_dict['stopped'])))
+logging.info("Total subscribers: %d; active: %d, inactive: %d."%(len(chat_id_dict['active'])+len(chat_id_dict['stopped']), len(chat_id_dict['active']), len(chat_id_dict['stopped'])))
 
 # TEST
 #logging.info("Testing mode, please ignore the first fake event")
@@ -311,7 +320,7 @@ i = 0
 # Loop
 while (True):
     if i==60:
-        logging.info("Number of total subscribers: %d; active: %d, inactive: %d."%(len(chat_id_dict['active'])+len(chat_id_dict['stopped']), len(chat_id_dict['active']), len(chat_id_dict['stopped'])))
+        logging.info("Total subscribers: %d; active: %d, inactive: %d."%(len(chat_id_dict['active'])+len(chat_id_dict['stopped']), len(chat_id_dict['active']), len(chat_id_dict['stopped'])))
         i=0
 
     newdf, diffdf = updateTable(df)
