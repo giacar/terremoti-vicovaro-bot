@@ -15,6 +15,8 @@ import psycopg2
 import telepot
 from telepot.loop import MessageLoop
 
+from discord_webhook import DiscordWebhook
+
 logging.basicConfig(format='%(asctime)s.%(msecs)03d %(levelname)s [%(funcName)s] %(message)s', datefmt='%Y-%m-%d,%H:%M:%S', level=logging.INFO)
 
 PREVIOUS_MONTHS = -2
@@ -35,6 +37,8 @@ DONATION = os.environ.get("DONATION", None)
 TOKEN = os.environ.get("TOKEN_BOT", None)
 DATABASE_URL = os.environ.get("DATABASE_URL", None)
 
+DISCORD_URL = os.environ.get("DISCORD_URL", None)
+
 chat_id_dict = {}
 
 def handle_SIGTERM(sig, frame):
@@ -54,6 +58,8 @@ def handle_SIGTERM(sig, frame):
     conn.close()
 
     logging.info("Database updated, now I can exit safely")
+    reboot_msg = "Il dyno si è riavviato.\nTotal subscribers: %d; active: %d, inactive: %d."%(len(chat_id_dict['active'])+len(chat_id_dict['stopped']), len(chat_id_dict['active']), len(chat_id_dict['stopped']))
+    DiscordWebhook(url=DISCORD_URL, content=reboot_msg).execute()
     sys.exit(0)
 
 def fromChatIDToDB(id, active):
@@ -195,7 +201,9 @@ def sendNewEvents(newevents):
                 bot.sendMessage(id, message, parse_mode="MarkdownV2", disable_web_page_preview=True)
                 bot.sendLocation(id, float(event['Latitude']), float(event['Longitude']))
         else:
-            logging.info("New event ID=%s detected as FAKE, ignoring it"%str(event['#EventID']))
+            fake_event_msg = "New event ID=%s detected as FAKE, ignoring it"%str(event['#EventID'])
+            logging.info(fake_event_msg)
+            DiscordWebhook(url=DISCORD_URL, content=fake_event_msg).execute()
             storeFakeEvent(event, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     del neweventsback
     logging.info("Sending completed")

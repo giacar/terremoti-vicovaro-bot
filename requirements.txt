@@ -3,3 +3,4 @@ telepot
 python-dateutil
 pytz
 psycopg2-binary
+discord-webhook
