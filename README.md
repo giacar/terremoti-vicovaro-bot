@@ -1,5 +1,9 @@
 # Terremoti Vicovaro Bot
-Terremoti Vicovaro Bot è un bot Telegram che permette di monitorare gli eventi sismici che accadono nella zona di Vicovaro e dintorni sfruttando direttamente le [API](http://terremoti.ingv.it/webservices_and_software) dell'INGV. In questo modo è sia possibile essere notificato in tempo reale sui nuovi eventi, che visualizzare quelli già accaduti.
+[![it](https://img.shields.io/badge/lang-it-green.svg)](https://github.com/giacar/terremoti-vicovaro-bot/blob/main/README.md)
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/giacar/terremoti-vicovaro-bot/blob/main/README.en.md)
+
+Terremoti Vicovaro Bot è un bot Telegram che permette di monitorare gli eventi sismici che accadono nella zona di Vicovaro (RM) e dintorni sfruttando direttamente le [API](http://terremoti.ingv.it/webservices_and_software) dell'INGV. In questo modo è sia possibile essere notificato in tempo reale sui nuovi eventi, che visualizzare quelli già accaduti.
+In particolare, è stato creato in concomitanza con lo sciame sismico avvenuto tra Dicembre 2020 e Gennaio 2021, notizia: [RomaToday](https://www.romatoday.it/cronaca/terremoto-roma-est-28-gennaio-2021.html).
 
 ## Link Telegram
 Il bot può essere utilizzato [cliccando qui](https://t.me/vicovaro_earthquakes_bot).
