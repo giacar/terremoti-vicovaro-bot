@@ -15,7 +15,7 @@ import psycopg2
 import telepot
 from telepot.loop import MessageLoop
 
-from discord_webhook import DiscordWebhook
+from discord_webhook import DiscordWebhook, DiscordEmbed
 
 logging.basicConfig(format='%(asctime)s.%(msecs)03d %(levelname)s [%(funcName)s] %(message)s', datefmt='%Y-%m-%d,%H:%M:%S', level=logging.INFO)
 
@@ -38,6 +38,10 @@ TOKEN = os.environ.get("TOKEN_BOT", None)
 DATABASE_URL = os.environ.get("DATABASE_URL", None)
 
 DISCORD_URL = os.environ.get("DISCORD_URL", None)
+DISCORD_AUTHOR_URL = "http://t.me/vicovaro_earthquakes_bot"
+DISCORD_AUTHOR_ICON = "https://upload.wikimedia.org/wikipedia/commons/c/c7/Vicovaro_San_Pietro.jpg"
+
+webhook = DiscordWebhook(url=DISCORD_URL)
 
 chat_id_dict = {}
 
@@ -58,8 +62,10 @@ def handle_SIGTERM(sig, frame):
     conn.close()
 
     logging.info("Database updated, now I can exit safely")
-    reboot_msg = "Il dyno si è riavviato.\nTotal subscribers: %d; active: %d, inactive: %d."%(len(chat_id_dict['active'])+len(chat_id_dict['stopped']), len(chat_id_dict['active']), len(chat_id_dict['stopped']))
-    DiscordWebhook(url=DISCORD_URL, content=reboot_msg).execute()
+    reboot_msg = "Il dyno si è riavviato.\nIscritti totali: %d; attivi: %d, inattivi: %d."%(len(chat_id_dict['active'])+len(chat_id_dict['stopped']), len(chat_id_dict['active']), len(chat_id_dict['stopped']))
+    embed = DiscordEmbed(title='♻️♻️♻️ Stato ♻️♻️♻', description=reboot_msg)
+    embed.set_author(name='Terremoti Vicovaro Bot', url=DISCORD_AUTHOR_URL, icon_url=DISCORD_AUTHOR_ICON)
+    webhook.add_embed(embed).execute()
     sys.exit(0)
 
 def fromChatIDToDB(id, active):
@@ -203,7 +209,9 @@ def sendNewEvents(newevents):
         else:
             fake_event_msg = "New event ID=%s detected as FAKE, ignoring it"%str(event['#EventID'])
             logging.info(fake_event_msg)
-            DiscordWebhook(url=DISCORD_URL, content=fake_event_msg).execute()
+            embed = DiscordEmbed(title='❌❌❌ Evento Falso ❌❌❌', description=fake_event_msg)
+            embed.set_author(name='Terremoti Vicovaro Bot', url=DISCORD_AUTHOR_URL, icon_url=DISCORD_AUTHOR_ICON)
+            webhook.add_embed(embed).execute()
             storeFakeEvent(event, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     del neweventsback
     logging.info("Sending completed")
