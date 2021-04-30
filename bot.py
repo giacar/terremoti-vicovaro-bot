@@ -45,8 +45,26 @@ webhook = DiscordWebhook(url=DISCORD_URL)
 
 chat_id_dict = {}
 
+def check_conn():
+    global conn     # used to refer to global variable conn
+
+    if conn.closed:
+        logging.warning("Database connection is closed, open another one")
+        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM chat_id;")
+    except psycopg2.OperationalError:
+        logging.error("Problem with database connection, open another one")
+        cur.close()
+        conn.close()
+        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+
 def handle_SIGTERM(sig, frame):
     logging.info("Updating database before to exit...")
+    check_conn()
+
     cur = conn.cursor()
 
     for key in list(chat_id_dict):
@@ -69,6 +87,8 @@ def handle_SIGTERM(sig, frame):
     sys.exit(0)
 
 def fromChatIDToDB(id, active):
+    check_conn()
+
     cur = conn.cursor()
     
     cur.execute("SELECT * FROM chat_id WHERE id = %s;", (id,))
@@ -81,6 +101,8 @@ def fromChatIDToDB(id, active):
     cur.close()
 
 def fromDBToChatID():
+    check_conn()
+
     cur = conn.cursor()
 
     dict_ids = {
@@ -146,6 +168,8 @@ def updateTable(table):
     return (newdf, diffdf)
 
 def storeFakeEvent(event, timestamp):
+    check_conn()
+
     cur = conn.cursor()
 
     cur.execute("INSERT INTO fake_events(eventid, timestamp) VALUES (%s, %s);", (int(event['EventID']), timestamp))
