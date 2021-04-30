@@ -236,7 +236,8 @@ def sendNewEvents(newevents):
             logging.info(fake_event_msg)
             embed = DiscordEmbed(title='❌❌❌ Evento Falso ❌❌❌', description=fake_event_msg)
             embed.set_author(name='Terremoti Vicovaro Bot', url=DISCORD_AUTHOR_URL, icon_url=DISCORD_AUTHOR_ICON)
-            webhook.add_embed(embed).execute()
+            webhook.add_embed(embed)
+            webhook.execute()
             storeFakeEvent(event, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     del neweventsback
     logging.info("Sending completed")
