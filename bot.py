@@ -83,7 +83,8 @@ def handle_SIGTERM(sig, frame):
     reboot_msg = "Il dyno si è riavviato.\nIscritti totali: %d; attivi: %d, inattivi: %d."%(len(chat_id_dict['active'])+len(chat_id_dict['stopped']), len(chat_id_dict['active']), len(chat_id_dict['stopped']))
     embed = DiscordEmbed(title='♻️♻️♻️ Stato ♻️♻️♻', description=reboot_msg)
     embed.set_author(name='Terremoti Vicovaro Bot', url=DISCORD_AUTHOR_URL, icon_url=DISCORD_AUTHOR_ICON)
-    webhook.add_embed(embed).execute()
+    webhook.add_embed(embed)
+    webhook.execute()
     sys.exit(0)
 
 def fromChatIDToDB(id, active):
